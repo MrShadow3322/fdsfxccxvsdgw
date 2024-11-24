@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #eaeaea;
+        }
+
+        header {
+            background-color: #162447;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #fff;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #1f4068;
+            transform: scale(1.05);
+        }
+
+        #categories-button, #all-products-button, #seller-button {
+            background-color: #1b1b2f;
+            color: #eaeaea;
+        }
+
+        .category-button {
+            margin: 5px;
+            background-color: #162447;
+            color: #eaeaea;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #seller-form {
+            background-color: #0f3460;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        #seller-application input, #seller-application textarea, #seller-application button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        #seller-application input, #seller-application textarea {
+            background-color: #1a1a2e;
+            color: #eaeaea;
+        }
+
+        #seller-application button {
+            background-color: #162447;
+            color: #eaeaea;
+        }
+
+        #profile {
+            background-color: #162447;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Marketplace</h1>
+        <nav>
+            <button id="categories-button">Категории</button>
+            <button id="all-products-button">Все товары</button>
+            <button id="seller-button">Стать продавцом</button>
+        </nav>
+    </header>
+    <main>
+        <section id="categories" class="hidden">
+            <button class="category-button" data-category="home">Для дома</button>
+            <button class="category-button" data-category="tech">Техника</button>
+            <button class="category-button" data-category="clothes">Одежда</button>
+        </section>
+        <section id="products">
+            <div id="product-list"></div>
+        </section>
+        <section id="seller-form" class="hidden">
+            <h2>Заполните заявку</h2>
+            <form id="seller-application">
+                <input type="text" id="phone" placeholder="Введите номер телефона" required>
+                <textarea id="description" placeholder="Опишите товары" required></textarea>
+                <button type="submit">Отправить</button>
+            </form>
+        </section>
+        <section id="profile">
+            <h2>Профиль</h2>
+            <p>Ваш уникальный ID: <span id="user-id"></span></p>
+            <ul id="order-history"></ul>
+        </section>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoriesButton = document.getElementById('categories-button');
+            const allProductsButton = document.getElementById('all-products-button');
+            const sellerButton = document.getElementById('seller-button');
+            const categoriesSection = document.getElementById('categories');
+            const sellerForm = document.getElementById('seller-form');
+            const userIdElement = document.getElementById('user-id');
+            const sellerApplication = document.getElementById('seller-application');
+
+            // Show Categories
+            categoriesButton.addEventListener('click', () => {
+                categoriesSection.classList.toggle('hidden');
+            });
+
+            // Show Seller Form
+            sellerButton.addEventListener('click', () => {
+                sellerForm.classList.toggle('hidden');
+            });
+
+            // Unique User ID
+            const generateUserId = () => {
+                if (!localStorage.getItem('userId')) {
+                    const userId = 'USER-' + Math.floor(Math.random() * 1000000);
+                    localStorage.setItem('userId', userId);
+                }
+                return localStorage.getItem('userId');
+            };
+
+            userIdElement.textContent = generateUserId();
+
+            // Seller Application Submission
+            sellerApplication.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const phone = document.getElementById('phone').value;
+                const description = document.getElementById('description').value;
+
+                try {
+                    await fetch(`https://api.telegram.org/bot<YOUR_BOT_TOKEN>/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: '<YOUR_CHAT_ID>',
+                            text: `Заявка от продавца\nТелефон: ${phone}\nОписание: ${description}`
+                        }),
+                    });
+                    alert('Заявка отправлена!');
+                } catch (error) {
+                    console.error('Ошибка отправки:', error);
+                    alert('Не удалось отправить заявку. Попробуйте позже.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
